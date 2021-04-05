@@ -2,7 +2,8 @@
 import time
 
 import numpy as np 
-import cv2 
+import cv2
+from numpy.core.fromnumeric import size 
 
 
 def load_image(img_path):
@@ -161,6 +162,28 @@ def detect_in_video(video_path, webcam, weights, cfg, classes_fpath, confidence_
     video.release()
 
 
+def detect_in_image(img_path, weights, cfg, classes_fpath, confidence_threshold, nms_threshold):
+    """Performs mask detection in an image
+
+    Args:
+        img_path (str): path of the image
+        weights (str): path of the file storing model weights
+        cfg (str): path of the config file for the model
+        classes_fpath (str): path of the file containing class labels
+        confidence_threshold (float): threshold for confidence
+        nms_threshold (float): threshold for nms
+    """
+
+    img, h, w = load_image(img_path)
+    model, classes, output_layers = yolov3(weights, cfg, classes_fpath)
+
+    colors = np.random.uniform(0, 255, size=(len(classes),3))
+
+    boxes, confidences, labels = get_bounding_boxes(model, img, output_layers, w, h, confidence_threshold)
+    draw_bounding_boxes(boxes, confidences, labels, classes, img, colors, confidence_threshold, nms_threshold)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 
