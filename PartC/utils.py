@@ -1,9 +1,9 @@
 # Importing necessary libraries
 import time
+import random
 
 import numpy as np 
 import cv2
-from numpy.core.fromnumeric import size 
 
 
 def load_image(img_path):
@@ -95,7 +95,7 @@ def get_bounding_boxes(model, img, output_layers, w, h, threshold):
     return boxes, confidences, labels
 
 
-def draw_bounding_boxes(boxes, confidences, labels, classes, img, colors, confidence_threshold, nms_threshold):
+def draw_bounding_boxes(boxes, confidences, labels, classes, img, confidence_threshold, nms_threshold):
     """Draws the given bounding boxes on the frame after detection
 
     Args:
@@ -104,7 +104,6 @@ def draw_bounding_boxes(boxes, confidences, labels, classes, img, colors, confid
         labels (list): label for each object in bounding box
         classes (list): name of classes as a list
         img (np.ndarray): input frame 
-        colors (np.ndarray): set of colours to draw bounding boxes
         confidence_threshold (float): threshold for confidence
         nms_threshold (float): threshold for nms (prevents overlapping bounding boxes)
     """
@@ -115,10 +114,12 @@ def draw_bounding_boxes(boxes, confidences, labels, classes, img, colors, confid
         for i in box_idxs.flatten():
             x, y, w, h = boxes[i]
 
-            cv2.rectangle(img, (x, y), (x + w, y + h), colors[i], 2)
+            r = lambda: random.randint(0, 255) # generates random colors
+            color = (r(), r(), r())
+            cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
 
             description = f"{classes[labels[i]]}: {confidences[i]}"
-            cv2.putText(img, description, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[i], 2)
+            cv2.putText(img, description, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 
     cv2.imshow("Mask detection voohoo!!", img)
@@ -139,7 +140,6 @@ def detect_in_video(video_path, webcam, weights, cfg, classes_fpath, confidence_
 
     # load the model
     model, classes, output_layers = yolov3(weights, cfg, classes_fpath)
-    colors = np.random.uniform(0, 255, size=(len(classes),3))
 
     if webcam: # if webcam feed is to be taken as input
         video = cv2.VideoCapture(0)
@@ -153,7 +153,7 @@ def detect_in_video(video_path, webcam, weights, cfg, classes_fpath, confidence_
         h, w, _ = img.shape
 
         boxes, confidences, labels = get_bounding_boxes(model, img, output_layers, w, h, confidence_threshold)  
-        draw_bounding_boxes(boxes, confidences, labels, classes, img, colors,confidence_threshold, nms_threshold)
+        draw_bounding_boxes(boxes, confidences, labels, classes, img, confidence_threshold, nms_threshold)
 
         # quit on pressing q key
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -177,10 +177,8 @@ def detect_in_image(img_path, weights, cfg, classes_fpath, confidence_threshold,
     img, h, w = load_image(img_path)
     model, classes, output_layers = yolov3(weights, cfg, classes_fpath)
 
-    colors = np.random.uniform(0, 255, size=(len(classes),3))
-
     boxes, confidences, labels = get_bounding_boxes(model, img, output_layers, w, h, confidence_threshold)
-    draw_bounding_boxes(boxes, confidences, labels, classes, img, colors, confidence_threshold, nms_threshold)
+    draw_bounding_boxes(boxes, confidences, labels, classes, img, confidence_threshold, nms_threshold)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
