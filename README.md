@@ -3,6 +3,70 @@ Assignment 2 of the CS6910: Fundamentals of Deep Learning course by Sujay Bokil 
 
 ## Part A
 
+1. The notebook is structured to be run cell by cell.
+
+2. Next, the google drive needs to be mounted and the iNaturalist file needs to be unzipped. This part of the code will need to be modified according to the filepath on your local machine.
+
+```python
+#Mount Google Drive
+from google.colab import drive
+drive.mount('/content/drive')
+
+#Load and unzip iNaturalist zip file onto server, then remove zip to optimize performance
+zip_path = "drive/MyDrive/nature_12K.zip"
+!cp "{zip_path}" .
+!unzip -q nature_12K.zip
+!rm nature_12K.zip
+```
+3. There are functions defined to build a custom CNN and to prepare the image data generators for training and testing which need to be compiled.
+
+4. Functions train() and test() integrate WandB with the training, validation and testing process. A sweep config is defined already, whose hyperparameters and values can be modified. The train or test function can be called by the sweep agent.
+
+```python
+sweep_config = {
+    "name": "Test and Save Best Model",
+    "description": "Checking the performance of CNN on sample of test data",
+    "metric": "Val Accuracy",
+    "method": "grid",
+    "project": "CS6910_Assignment2",
+    "parameters": {
+        "num_filters": {
+            "values": [32]
+        },
+        "filter_multiplier": {
+            "values": [2]
+        },
+        "augment_data": {
+            "values": [True]
+        },
+        "dropout": {
+            "values": [0.3]
+        },
+        "batch_norm": {
+            "values": [True]
+        },
+        "epochs": {
+            "values": [1]
+        },
+        "dense_size": {
+            "values": [64]
+        },
+        "lr": {
+            "values": [0.001]
+        },
+        "epochs": {
+            "values": [10]
+        }
+    }
+}
+
+# creating the sweep
+sweep_id = wandb.sweep(sweep_config, project="CS6910_Assignment2")
+```
+
+5. Further, there are functions provided to plot sample image predictions and filter visualizations on the test data, which can be run from within the test function.
+
+6. Also, there is a function which can customise the run names in WandB.
 
 ## Part B
 
