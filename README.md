@@ -68,6 +68,14 @@ sweep_id = wandb.sweep(sweep_config, project="CS6910_Assignment2")
 
 6. Also, there is a function which can customise the run names in WandB.
 
+7. For the visualization of Guided Backpropgation we have made a function `guided_backprop`. To run it for visualizing the guided backpropagation of 10 images, run the following code.
+
+```python
+guided_backprop("path/to/saved/model", 10)
+```
+
+Note: We have saved one of the models for demo of this function, you can download it from [here](https://drive.google.com/file/d/1nDRC6SEIQRlCvZ28VoCz5zqyxHt0dENO/view?usp=sharing)
+
 ## Part B
 
 1. The notebook is structured such that it can be ran cell by cell
